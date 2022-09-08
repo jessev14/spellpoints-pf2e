@@ -1,0 +1,24 @@
+<form class="flexcol">
+    <div class='config-header flexrow'>
+        <div>{{headers.[0]}}</div>
+        <div>{{headers.[1]}}</div>
+    </div>
+    {{#each sp}}
+    <div class="flexrow">
+        <div>{{this.[0]}}</div>
+        <input type="number" name="{{this.[0]}}" value="{{this.[1]}}" placeholder="{{this.[0]}}"/>
+    </div>
+    {{/each}}
+
+    <footer class="sheet-footer flexrow">
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i>
+            {{localize "Save Changes"}}
+        </button>
+        <button type="button" name="reset">
+            <i class="fas fa-undo"></i>
+            {{localize "Reset"}}
+        </button>
+    </footer>
+
+</form>

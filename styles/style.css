@@ -1,0 +1,15 @@
+input.spell-points[type="number"] {
+    background: var(--alt);
+    border: 1px solid var(--sub);
+    border-radius: 3px;
+    color: #fff;
+    font-size: var(--font-size-11);
+    height: 14px;
+    padding-top: 2px;
+    text-align: center;
+    width: 22px;
+}
+
+.spellpoints-pf2e .config-header {
+    font-weight: bold;
+}
