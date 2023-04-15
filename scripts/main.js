@@ -14,6 +14,7 @@ for (let i = 0; i < 11; i++) {
 
 
 Hooks.once('init', () => {
+    game.packs.get
     CONFIG.PF2E.spellCategories.spellPoints = 'Spell Points';
     CONFIG.PF2E.preparationType.spellPoints = 'Spell Points';
 
@@ -53,7 +54,7 @@ Hooks.once('init', () => {
 Hooks.on('renderCharacterSheetPF2e', (app, [html], appData) => {
     const { actor } = app;
     const { level } = actor;
-    const maxSP = game.settings.get(moduleID, 'maxSP')[level];
+    const maxSP = actor.system.attributes.spellPoints.max;
 
     html.querySelectorAll('li.spellcasting-entry').forEach(li => {
         const item = actor.items.get(li.dataset.itemId);
@@ -76,7 +77,7 @@ Hooks.on('renderCharacterSheetPF2e', (app, [html], appData) => {
             const clampedSP = Math.clamped(newSP, 0, maxSP);
             target.value = clampedSP;
 
-            actor.update({ 'data.attributes.spellPoints.value': clampedSP });
+            actor.update({ 'system.attributes.spellPoints.value': clampedSP });
         });    
 
         li.querySelector('div.statistic-values').appendChild(spellPoints);
@@ -85,28 +86,23 @@ Hooks.on('renderCharacterSheetPF2e', (app, [html], appData) => {
 });
 
 Hooks.on('dropActorSheetData', async (actor, actorSheet, dropData) => {
-    if (dropData.type !== 'Item') return;
-    
-    let item;
-    if (dropData.pack) {
-        const compendium = game.packs.get(dropData.pack);
-        item = await compendium.getDocument(dropData.id);
-    } else item = game.items.get(dropData.id);
+    let item = fromUuidSync(dropData.uuid);
+    if (item?.pack) item = await game.packs.get(item.pack)?.getDocument(item._id);
     if (item?.type !== 'spell') return;
 
     Hooks.once('preCreateItem', (item, createData, options, userID) => {
-        item.data.update({ 'data.category.value': 'spellPoints' });
+        item.updateSource({ 'system.category.value': 'spellPoints' });
     });
 });
 
 Hooks.on('preUpdateActor', (actor, diff, options, userID) => {
-    if (actor.type !== 'character' || !foundry.utils.hasProperty(diff, 'data.details.level')) return;
+    if (actor.type !== 'character' || !foundry.utils.hasProperty(diff, 'system.details.level')) return;
     
-    const newCharacterLevel = diff.data.details.level.value;
+    const newCharacterLevel = diff.system.details.level.value;
     const currentSP = actor.system.attributes.spellPoints.value;
     const maxSP = game.settings.get(moduleID, 'maxSP')[newCharacterLevel];
 
-    if (currentSP > maxSP) actor.data.update({ 'data.attributes.spellPoints.value': maxSP });
+    if (currentSP > maxSP) actor.update({ 'system.attributes.spellPoints.value': maxSP });
 });
 
 
@@ -126,7 +122,7 @@ async function consumeSpellPoints(wrapper, spell, options = {}) {
         const spUse = game.settings.get(moduleID, 'useSP')[level];
         if (spUse > currentSP) return ui.notifications.warn('Not enough Spell Points to cast!');
 
-        await actor.update({ 'data.attributes.spellPoints.value': currentSP - spUse });
+        await actor.update({ 'system.attributes.spellPoints.value': currentSP - spUse });
         return spell.toMessage(undefined, { data: { spellLvl: level } });
 
     } else return wrapper(spell, options);
@@ -136,7 +132,12 @@ function addSpellPointsAttribute(wrapper) {
     wrapper();
 
     const currentSP = this.system.attributes.spellPoints?.value;
-    const maxSP = game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
+    let maxSP = game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
+    for (const rule of this.rules) {
+        if (rule.path !== 'system.attributes.spellPoints.max') continue;
+
+        maxSP += rule.value;
+    }
     this.system.attributes.spellPoints = {
         value: Math.clamped(currentSP ?? maxSP, 0, maxSP),
         max: maxSP
