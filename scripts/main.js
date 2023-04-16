@@ -104,6 +104,37 @@ Hooks.on('preUpdateActor', (actor, diff, options, userID) => {
     if (currentSP > maxSP) actor.update({ 'system.attributes.spellPoints.value': maxSP });
 });
 
+Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
+    const spellPointsDiv = document.createElement('div');
+    spellPointsDiv.classList.add('form-group', 'form-group-trait');
+
+    const spellPointsLabel = document.createElement('label');
+    spellPointsLabel.innerText = 'Spell Points ';
+    const spellPointsA = document.createElement('a');
+    spellPointsA.classList.add('tag-selector');
+    spellPointsA.innerHTML = `<i class="fas fa-edit"></i>`;
+    spellPointsA.addEventListener('click', () => {
+        lg('click')
+    });
+    spellPointsLabel.appendChild(spellPointsA);
+    spellPointsDiv.appendChild(spellPointsLabel);
+
+    const spellPointsUl = document.createElement('ul');
+    spellPointsUl.classList.add('abc-traits-list')
+    const spellPointsData = app.object.getFlag(moduleID, 'spellPointProgression') || game.settings.get(moduleID, 'maxSP');
+    for (const [level, spellPoints] of Object.entries(spellPointsData)) {
+        const levelSpan = document.createElement('span');
+        levelSpan.classList.add('tag-legacy', level);
+        levelSpan.innerText = `Level ${level}: ${spellPoints}`;
+        spellPointsUl.appendChild(levelSpan);
+    }
+    spellPointsDiv.appendChild(spellPointsUl);
+
+    const dataTraitsLabel = html.querySelector('label[for="data.traits"]');
+    const dataTraitsDiv = dataTraitsLabel.parentElement;
+    dataTraitsDiv.before(spellPointsDiv);
+});
+
 
 function getSpellPointBar(wrapper, barName, alternative) {
     const res = wrapper(barName, alternative);
