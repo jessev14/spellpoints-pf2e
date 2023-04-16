@@ -169,11 +169,13 @@ class ConfigureMenu extends FormApplication {
         return data;
     }
 
-    activateListeners(html) {
-        super.activateListeners(html);
+    activateListeners($html) {
+        super.activateListeners($html);
+        
+        const [html] = $html;
 
-        html[0].querySelector('button[name="reset"]').addEventListener('click', () => {
-            html[0].querySelectorAll('input').forEach(i => {
+        html.querySelector('button[name="reset"]').addEventListener('click', () => {
+            html.querySelectorAll('input').forEach(i => {
                 i.value = i.name;
             });
         });

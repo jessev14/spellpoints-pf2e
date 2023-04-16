@@ -1,5 +1,5 @@
 {
-    "id": "spell-points-pf2e",
+    "id": "spellpoints-pf2e",
     "title": "PF2e Spellpoints",
     "description": "",
     "authors": [
@@ -23,7 +23,7 @@
     "relationships": {
         "systems": [
             {
-                "id": "pfe",
+                "id": "pf2e",
                 "type": "system",
                 "compatibility": {
                     "minimum": "4.0.0",
