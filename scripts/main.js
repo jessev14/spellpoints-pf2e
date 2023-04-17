@@ -162,7 +162,9 @@ function addSpellPointsAttribute(wrapper) {
     wrapper();
 
     const currentSP = this.system.attributes.spellPoints?.value;
-    let maxSP = this.class?.getFlag(moduleID, 'spellPointProgression')?.[`Level ${this.level}`] ?? game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
+    const characterClass = this.class;
+    const spFlagData = characterClass.getFlag(moduleID, 'spellPointProgression');
+    let maxSP = spFlagData?.[this.level] ?? game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
     for (const rule of this.rules) {
         if (rule.path !== 'system.attributes.spellPoints.max') continue;
 
