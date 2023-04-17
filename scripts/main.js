@@ -114,7 +114,7 @@ Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
     spellPointsA.classList.add('tag-selector');
     spellPointsA.innerHTML = `<i class="fas fa-edit"></i>`;
     spellPointsA.addEventListener('click', () => {
-        lg('click')
+        new ConfigureMaxSPClass(app.object).render(true);
     });
     spellPointsLabel.appendChild(spellPointsA);
     spellPointsDiv.appendChild(spellPointsLabel);
@@ -162,7 +162,7 @@ function addSpellPointsAttribute(wrapper) {
     wrapper();
 
     const currentSP = this.system.attributes.spellPoints?.value;
-    let maxSP = game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
+    let maxSP = this.class?.getFlag(moduleID, 'spellPointProgression')?.[`Level ${this.level}`] ?? game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
     for (const rule of this.rules) {
         if (rule.path !== 'system.attributes.spellPoints.max') continue;
 
@@ -192,10 +192,7 @@ class ConfigureMenu extends FormApplication {
         const data = {};
         data.headers = this.headers;
         const settingsData = game.settings.get(moduleID, this.settingsKey);
-        data.sp = [];
-        for (let i = this.settingsKey === 'maxSP' ? 1 : 0; i < (this.settingsKey === 'maxSP' ? 31 : 11); i++) {
-            data.sp.push([i, (settingsData[i] === i ? '' : settingsData[i])]);
-        }
+        data.sp = settingsData;
 
         return data;
     }
@@ -207,7 +204,7 @@ class ConfigureMenu extends FormApplication {
 
         html.querySelector('button[name="reset"]').addEventListener('click', () => {
             html.querySelectorAll('input').forEach(i => {
-                i.value = i.name;
+                i.value = parseInt(i.name);
             });
         });
     }
@@ -215,7 +212,8 @@ class ConfigureMenu extends FormApplication {
     async _updateObject(event, formData) {
         const data = {};
         for (const [k, v] of Object.entries(formData)) {
-            data[k] = v || parseInt(k);
+            const n = parseInt(k.split('-')[1]);
+            data[n] = v || n;
         }
         return game.settings.set(moduleID, this.settingsKey, data);
     }
@@ -232,6 +230,38 @@ class ConfigureMaxSP extends ConfigureMenu {
 
     get title() {
         return 'Configure Max Spell Points';
+    }
+}
+
+class ConfigureMaxSPClass extends ConfigureMaxSP {
+    constructor(classItem) {
+        super();
+
+        this.class = classItem;
+        this.className = classItem.name;
+        this.spProgression = classItem.getFlag(moduleID, 'spellPointProgression');
+    }
+
+    get title() {
+        return `SP Progression: ${this.className}`;
+    }
+
+    getData() {
+        const data = super.getData();
+        if (!this.spProgression) return data;
+        
+        data.sp = this.spProgression;
+
+        return data;
+    }
+
+    async _updateObject(event, formData) {
+        const data = {};
+        for (const [k, v] of Object.entries(formData)) {
+            const n = parseInt(k.split('-')[1]);
+            data[n] = v || n;
+        }
+        return this.class.setFlag(moduleID, 'spellPointProgression', data); 
     }
 }
 

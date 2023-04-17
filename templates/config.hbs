@@ -1,12 +1,12 @@
-<form class="flexcol">
+<form class="flexcol" autocomplete="off">
     <div class='config-header flexrow'>
         <div>{{headers.[0]}}</div>
         <div>{{headers.[1]}}</div>
     </div>
-    {{#each sp}}
+    {{#each sp as |spellPoints level|}}
     <div class="flexrow">
-        <div>{{this.[0]}}</div>
-        <input type="number" name="{{this.[0]}}" value="{{this.[1]}}" placeholder="{{this.[0]}}"/>
+        <div>Level {{level}}</div>
+        <input type="number" name="level-{{level}}" value="{{spellPoints}}" placeholder="{{level}}"/>
     </div>
     {{/each}}
 
