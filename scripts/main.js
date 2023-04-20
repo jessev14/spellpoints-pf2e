@@ -20,7 +20,8 @@ Hooks.once('init', () => {
     game.settings.register(moduleID, 'maxSP', {
         scope: 'world',
         type: Object,
-        default: maxSPdefault
+        default: maxSPdefault,
+        requiresReload: true
     });
 
     game.settings.registerMenu(moduleID, 'maxSPMenu', {
@@ -163,7 +164,7 @@ function addSpellPointsAttribute(wrapper) {
 
     const currentSP = this.system.attributes.spellPoints?.value;
     const characterClass = this.class;
-    const spFlagData = characterClass.getFlag(moduleID, 'spellPointProgression');
+    const spFlagData = characterClass?.getFlag(moduleID, 'spellPointProgression');
     let maxSP = spFlagData?.[this.level] ?? game.settings.get(moduleID, 'maxSP')[this.level] ?? 0;
     for (const rule of this.rules) {
         if (rule.path !== 'system.attributes.spellPoints.max') continue;
