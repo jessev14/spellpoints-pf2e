@@ -137,6 +137,13 @@ Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
     dataTraitsDiv.before(spellPointsDiv);
 });
 
+Hooks.on('pf2e.restForTheNight', async actor => {
+    if (!actor.isOwner) return;
+    if (!actor.system.attributes.spellPoints) return;
+    
+    await actor.update({ 'system.attributes.spellPoints.value': actor.system.attributes.spellPoints.max });
+});
+
 
 function getSpellPointBar(wrapper, barName, alternative) {
     const res = wrapper(barName, alternative);
