@@ -95,14 +95,15 @@ Hooks.on('dropActorSheetData', async (actor, actorSheet, dropData) => {
     });
 });
 
-Hooks.on('preUpdateActor', (actor, diff, options, userID) => {
+Hooks.on('updateActor', (actor, diff, options, userID) => {
+    if (game.user.id !== userID) return;
     if (actor.type !== 'character' || !foundry.utils.hasProperty(diff, 'system.details.level')) return;
     
     const newCharacterLevel = diff.system.details.level.value;
-    const currentSP = actor.system.attributes.spellPoints.value;
-    const maxSP = game.settings.get(moduleID, 'maxSP')[newCharacterLevel];
+    //const currentSP = actor.system.attributes.spellPoints.value;
+    const maxSP = (actor.system.attributes.spellPoints?.max ?? actor.class.getFlag(moduleID, 'spellPointProgression')?.[newCharacterLevel]) || game.settings.get(moduleID, 'maxSP')[newCharacterLevel];
 
-    if (currentSP > maxSP) actor.update({ 'system.attributes.spellPoints.value': maxSP });
+    return actor.update({ 'system.attributes.spellPoints.value': maxSP });
 });
 
 Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
