@@ -88,7 +88,7 @@ Hooks.on('renderCharacterSheetPF2e', (app, [html], appData) => {
 Hooks.on('dropActorSheetData', async (actor, actorSheet, dropData) => {
     let item = fromUuidSync(dropData.uuid);
     if (item?.pack) item = await game.packs.get(item.pack)?.getDocument(item._id);
-    if (item?.type !== 'spell') return;
+    if (item?.type !== 'spell' || actor.type !== 'character') return;
 
     Hooks.once('preCreateItem', (item, createData, options, userID) => {
         item.updateSource({ 'system.category.value': 'spellPoints' });
@@ -153,7 +153,8 @@ function getSpellPointBar(wrapper, barName, alternative) {
 }
 
 async function consumeSpellPoints(wrapper, spell, options = {}) {
-    const isSpellPoints = spell.system.category.value === 'spellPoints';
+    // const isSpellPoints = spell.system.category.value === 'spellPoints';
+    const isSpellPoints = this.system.prepared.value === 'spellPoints';
 
     if (isSpellPoints) {
         const { actor, level } = spell;
