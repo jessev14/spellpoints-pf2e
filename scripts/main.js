@@ -14,7 +14,7 @@ for (let i = 0; i < 11; i++) {
 
 
 Hooks.once('init', () => {
-    CONFIG.PF2E.spellCategories.spellPoints = 'Spell Points';
+    // CONFIG.PF2E.spellCategories.spellPoints = 'Spell Points';
     CONFIG.PF2E.preparationType.spellPoints = 'Spell Points';
 
     game.settings.register(moduleID, 'maxSP', {
