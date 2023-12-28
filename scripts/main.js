@@ -107,19 +107,19 @@ Hooks.on('updateActor', (actor, diff, options, userID) => {
 });
 
 Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
-    const spellPointsDiv = document.createElement('div');
-    spellPointsDiv.classList.add('form-group', 'form-group-trait');
+    const spellPointsDiv = document.createElement('fieldset');
+    spellPointsDiv.classList.add('form-group', 'stacked', 'form-group-trait');
+    const spellPointsLegend = document.createElement('legend');
+    spellPointsLegend.innerText = 'Spell Points ';
 
-    const spellPointsLabel = document.createElement('label');
-    spellPointsLabel.innerText = 'Spell Points ';
     const spellPointsA = document.createElement('a');
     spellPointsA.classList.add('tag-selector');
     spellPointsA.innerHTML = `<i class="fas fa-edit"></i>`;
     spellPointsA.addEventListener('click', () => {
         new ConfigureMaxSPClass(app.object).render(true);
     });
-    spellPointsLabel.appendChild(spellPointsA);
-    spellPointsDiv.appendChild(spellPointsLabel);
+    spellPointsLegend.appendChild(spellPointsA);
+    spellPointsDiv.appendChild(spellPointsLegend);
 
     const spellPointsUl = document.createElement('ul');
     spellPointsUl.classList.add('abc-traits-list')
@@ -132,9 +132,8 @@ Hooks.on('renderClassSheetPF2e', (app, [html], appData) => {
     }
     spellPointsDiv.appendChild(spellPointsUl);
 
-    const dataTraitsLabel = html.querySelector('label[for="data.traits"]');
-    const dataTraitsDiv = dataTraitsLabel.parentElement;
-    dataTraitsDiv.before(spellPointsDiv);
+    const dataTraitsLabel = html.querySelector('fieldset[data-valid-drops="classfeature"]');
+    dataTraitsLabel.after(spellPointsDiv);
 });
 
 Hooks.on('pf2e.restForTheNight', async actor => {
